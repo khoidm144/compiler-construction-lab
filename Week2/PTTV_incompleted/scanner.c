@@ -20,9 +20,10 @@ extern CharCode charCodes[];
 
 /***************************************************************/
 
+
 void skipBlank()
 {
-  while ((currentChar != EOF) && (charCodes[currentChar] == CHAR_SPACE))
+  while ((currentChar != EOF) && (charCodes[currentChar] == CHAR_SPACE)) // check to prevent invalid index (-1) of array and ensure continue looping to remove all blank
   {
     readChar();
   }
@@ -30,75 +31,54 @@ void skipBlank()
 
 void skipComment()
 {
-  int state = 0;
-  while ((currentChar != EOF) && (state < 2))
+  int flag = 0;                              // flag var to check valid comment format
+  while ((currentChar != EOF) && (flag < 2)) // check to prevent invalid index (-1) of array, flag var to ch
   {
     switch (charCodes[currentChar])
     {
     case CHAR_TIMES:
-      state = 1;
+        flag = 1; // second "*" means end of comment if the next char must be RPAR to be valid comment
       break;
 
     case CHAR_RPAR:
-      if (state == 1)
-        state = 2;
-      else
-        state = 0;
+      if (flag == 1)
+        flag = 2; // flag = 2 means valid comment, and only when comment has second '*' right before it
       break;
 
     default:
-      state = 0;
+        flag = 0;
+      break;
     }
     readChar();
   }
-  if (state != 2)
+  if (flag != 2) // unclosed comment => error
     error(ERR_ENDOFCOMMENT, lineNo, colNo);
 }
 
 Token *readIdentKeyword(void)
 {
   Token *token = makeToken(TK_NONE, lineNo, colNo);
-  int count = 1;
+  int stringIndexCount = 1;
 
   token->string[0] = (char)currentChar;
   readChar();
 
-  while ((currentChar != EOF) &&
+  while ((currentChar != EOF) && // check to prevent invalid index (-1) of array
          ((charCodes[currentChar] == CHAR_LETTER) || (charCodes[currentChar] == CHAR_DIGIT)))
   {
-    if (count <= MAX_IDENT_LEN)
-      token->string[count++] = (char)currentChar;
-    readChar();
+    if (stringIndexCount <= MAX_IDENT_LEN)                   // check to prevent exceeds max indent length
+      token->string[stringIndexCount++] = (char)currentChar; // append char to string
+    else
+    {
+      error(ERR_IDENTTOOLONG, token->lineNo, token->colNo); // throw error when exceeding max indent length
+      return token;
+    }
+    readChar(); // read next character
   }
+  token->string[stringIndexCount] = '\0';
 
-  if (count > MAX_IDENT_LEN)
-  {
-    error(ERR_IDENTTOOLONG, token->lineNo, token->colNo);
-    return token;
-  }
-
-  token->string[count] = '\0';
-  token->tokenType = checkKeyword(token->string);
-
-  if (token->tokenType == TK_NONE)
-    token->tokenType = TK_IDENT;
-
-  return token;
-}
-
-Token *readNumber(void)
-{
-  Token *token = makeToken(TK_NUMBER, lineNo, colNo);
-  int count = 0;
-
-  while ((currentChar != EOF) && (charCodes[currentChar] == CHAR_DIGIT))
-  {
-    token->string[count++] = (char)currentChar;
-    readChar();
-  }
-
-  token->string[count] = '\0';
-  token->value = atoi(token->string);
+  TokenType checkedType = checkKeyword(token->string); // check if string is belong to program keyword
+  token->tokenType = checkedType != TK_NONE ? checkedType : TK_IDENT;
 
   return token;
 }
@@ -121,19 +101,12 @@ Token *readConstChar(void)
   token->value = currentChar;
 
   readChar();
-  if (currentChar == EOF)
-  {
-    token->tokenType = TK_NONE;
-    error(ERR_INVALIDCHARCONSTANT, token->lineNo, token->colNo);
-    return token;
-  }
-
-  if (charCodes[currentChar] == CHAR_SINGLEQUOTE)
+  if (charCodes[currentChar] == CHAR_SINGLEQUOTE) // case valid constant char
   {
     readChar();
     return token;
   }
-  else
+  else // unclosed constChar
   {
     token->tokenType = TK_NONE;
     error(ERR_INVALIDCHARCONSTANT, token->lineNo, token->colNo);
@@ -141,12 +114,32 @@ Token *readConstChar(void)
   }
 }
 
+Token *readNumber(void)
+{
+  Token *token = makeToken(TK_NUMBER, lineNo, colNo);
+  int check = 0;
+  while ((currentChar != EOF) && (charCodes[currentChar] == CHAR_DIGIT))
+  {
+    if ((check * 10) / 10 != check || check * 10 + (currentChar - '0') < 0) // convert to base 10 number, check number is too large
+    {
+      error(ERR_NUMBERTOOLARGE, token->lineNo, token->colNo);
+      break;
+    }
+    check = check * 10 + (currentChar - '0');
+    readChar();
+  }
+  sprintf(token->string, "%d%c", check, '\0');
+  token->value = check;
+
+  return token;
+}
+
 Token *getToken(void)
 {
   Token *token;
-  int ln, cn;
+  int Ln, Col;
 
-  if (currentChar == EOF)
+  if (currentChar == EOF) // check to prevent invalid index (-1) of array
     return makeToken(TK_EOF, lineNo, colNo);
 
   switch (charCodes[currentChar])
@@ -188,70 +181,70 @@ Token *getToken(void)
     return token;
 
   case CHAR_PERIOD:
-    ln = lineNo;
-    cn = colNo;
-    token = makeToken(SB_PERIOD, ln, cn);
+    Ln = lineNo;
+    Col = colNo;
+    token = makeToken(SB_PERIOD, Ln, Col);
     readChar();
     if (currentChar != EOF && charCodes[currentChar] == CHAR_RPAR)
     {
-      token = makeToken(SB_RSEL, ln, cn);
+      token = makeToken(SB_RSEL, Ln, Col);
       readChar();
     }
     return token;
 
   case CHAR_COLON:
-    ln = lineNo;
-    cn = colNo;
+    Ln = lineNo;
+    Col = colNo;
 
-    token = makeToken(SB_COLON, ln, cn);
+    token = makeToken(SB_COLON, Ln, Col);
     readChar();
-    if (currentChar != EOF && charCodes[currentChar] == CHAR_EQ)
+    if (currentChar != EOF && charCodes[currentChar] == CHAR_EQ) // case assign
     {
-      token = makeToken(SB_ASSIGN, ln, cn);
+      token = makeToken(SB_ASSIGN, Ln, Col);
       readChar();
     }
     return token;
 
   case CHAR_GT:
-    ln = lineNo;
-    cn = colNo;
+    Ln = lineNo;
+    Col = colNo;
 
-    token = makeToken(SB_GT, ln, cn);
+    token = makeToken(SB_GT, Ln, Col);
     readChar();
     if (currentChar != EOF && charCodes[currentChar] == CHAR_EQ)
     {
-      token = makeToken(SB_GE, ln, cn);
+      token = makeToken(SB_GE, Ln, Col);
       readChar();
     }
     return token;
 
   case CHAR_LT:
-    ln = lineNo;
-    cn = colNo;
+    Ln = lineNo;
+    Col = colNo;
 
-    token = makeToken(SB_LT, ln, cn);
+    token = makeToken(SB_LT, Ln, Col);
     readChar();
-    if (currentChar != EOF && charCodes[currentChar] == CHAR_LT)
+    if (currentChar != EOF && charCodes[currentChar] == CHAR_EQ)
     {
-      token = makeToken(SB_LE, ln, cn);
+      token = makeToken(SB_LE, Ln, Col);
       readChar();
     }
     return token;
 
   case CHAR_EXCLAIMATION:
-    ln = lineNo;
-    cn = colNo;
+    Ln = lineNo;
+    Col = colNo;
 
     readChar();
     if (currentChar != EOF && charCodes[currentChar] == CHAR_EQ)
     {
-      token = makeToken(SB_NEQ, ln, cn);
+      token = makeToken(SB_NEQ, Ln, Col);
       readChar();
     }
     else
     {
-      token = makeToken(TK_NONE, ln, cn);
-      error(ERR_INVALIDSYMBOL, ln, cn);
+      token = makeToken(TK_NONE, Ln, Col);
+      error(ERR_INVALIDSYMBOL, Ln, Col);
     }
     return token;
 
@@ -261,21 +254,21 @@ Token *getToken(void)
     return token;
 
   case CHAR_LPAR:
-    ln = lineNo;
-    cn = colNo;
+    Ln = lineNo;
+    Col = colNo;
 
     readChar();
 
-    if (currentChar == EOF)
+    if (currentChar == EOF) // check to prevent invalid index (-1) of array
     {
-      token = makeToken(SB_LPAR, ln, cn);
+      token = makeToken(SB_LPAR, Ln, Col);
       return token;
     }
 
     switch (charCodes[currentChar])
     {
     case CHAR_PERIOD:
-      token = makeToken(SB_LSEL, ln, cn);
+      token = makeToken(SB_LSEL, Ln, Col);
       readChar();
       return token;
 
