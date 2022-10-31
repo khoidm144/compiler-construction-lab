@@ -28,6 +28,9 @@ void error(ErrorCode err, int lineNo, int colNo)
   case ERR_NUMBERTOOLARGE:
     printf("%d-%d:%s\n", lineNo, colNo, ERM_NUMBERTOOLARGE);
     break;
+    case ERR_INVALIDINDENT:
+    printf("%d-%d:%s\n", lineNo, colNo, ERM_INVALIDINDENT);
+    break;
   }
   exit(-1);
 }
