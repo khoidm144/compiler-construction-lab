@@ -30,6 +30,8 @@ void skipBlank()
 
 void skipComment()
 {
+  // modify :
+  // Single-line comment : Starts with //, end at end of line.
   int flag = 0;                               // flag var to check valid comment format
   while ((currentChar != EOF) && (flag != 1)) // check to prevent invalid index (-1) of array, flag var to ch
   {
@@ -55,23 +57,24 @@ Token *readIdentKeyword(void)
   int stringIndexCount = 1;
 
   token->string[0] = (char)currentChar;
-  if (charCodes[currentChar] != CHAR_LETTER && charCodes[currentChar] != CHAR_UNDERSCORE)
+  if (charCodes[currentChar] != CHAR_LETTER && charCodes[currentChar] != CHAR_UNDERSCORE) // Modify:  The first character of an identifier should be either a letter or an underscore.
   {
     error(ERR_INVALIDSYMBOL, token->lineNo, token->colNo);
     return token;
   }
   readChar();
 
-  while ((currentChar != EOF) && // check to prevent invalid index (-1) of array
-         ((charCodes[currentChar] == CHAR_LETTER) || (charCodes[currentChar] == CHAR_DIGIT) || (charCodes[currentChar] == CHAR_UNDERSCORE)))
+  while ((currentChar != EOF) &&                                                                                                             // check to prevent invalid index (-1) of array
+         ((charCodes[currentChar] == CHAR_LETTER) || (charCodes[currentChar] == CHAR_DIGIT) || (charCodes[currentChar] == CHAR_UNDERSCORE))) // A valid identifier can have letters (both uppercase and lowercase letters), digits and underscores.
   {
-    if (stringIndexCount < MAX_IDENT_LEN)                    // check to prevent exceeds max indent length
+    if (stringIndexCount < MAX_IDENT_LEN)                    // Modify: There is no rule on how long an identifier can be. However, only 15 characters are significant
       token->string[stringIndexCount++] = (char)currentChar; // append char to string
     readChar();                                              // read next character
   }
   token->string[stringIndexCount] = '\0';
 
   TokenType checkedType = checkKeyword(token->string); // check if string is belong to program keyword
+                                                       // Modify: cannot use keywords as identifiers
   token->tokenType = checkedType != TK_NONE ? checkedType : TK_IDENT;
 
   return token;
@@ -83,6 +86,8 @@ Token *readConstChar(void)
 
   readChar();
 
+  int flag = 0;
+
   if (currentChar == EOF)
   {
     token->tokenType = TK_NONE;
@@ -90,12 +95,41 @@ Token *readConstChar(void)
     return token;
   }
 
-  token->string[0] = currentChar;
-  token->string[1] = '\0';
-  token->value = currentChar;
+  int stringIndexCount = 0;
+  int continueFlag = 0;
+  while ((currentChar != EOF) && // check to prevent invalid index (-1) of array
+         currentChar >= PRINTABLE_CHARCODE_lOWERBOUND && currentChar <= PRINTABLE_CHARCODE_UPPERBOUND)
+  {
+    continueFlag = 0;
+    if (flag == 1 && charCodes[currentChar] != CHAR_SINGLEQUOTE)
+    {
+      break;
+    }
+    if (charCodes[currentChar] == CHAR_SINGLEQUOTE)
+    {
+      flag++;
+      if (flag == 4)
+      {
+        token->string[stringIndexCount++] = 39;
+        flag = 0;
+      }
+      continueFlag = 1;
+    }
+    if (continueFlag == 0)
+    {
+      token->string[stringIndexCount++] = (char)currentChar;
+    }
+    readChar();
+    if (stringIndexCount > MAX_STRING_LEN)
+    {
+      token->tokenType = TK_NONE;
+      error(ERR_STRINGCONSTANTTOOLONG, token->lineNo, token->colNo);
+      return token;
+    }
+  }
+  token->string[stringIndexCount] = '\0';
 
-  readChar();
-  if (charCodes[currentChar] == CHAR_SINGLEQUOTE) // case valid constant char
+  if (flag == 1) // case valid constant char
   {
     readChar();
     return token;
@@ -173,7 +207,7 @@ Token *getToken(void)
     }
     switch (charCodes[currentChar])
     {
-    case CHAR_SLASH:
+    case CHAR_SLASH: // Modify:  single line comment with //
       readChar();
       skipComment();
       return getToken();
@@ -251,7 +285,7 @@ Token *getToken(void)
       readChar();
       return token;
     case CHAR_GT:
-      token = makeToken(SB_NEQ, Ln, Col);
+      token = makeToken(SB_NEQ, Ln, Col); // Modify : Relop: not equal to <>
       readChar();
       return token;
 
@@ -259,23 +293,6 @@ Token *getToken(void)
       token = makeToken(SB_LT, lineNo, colNo);
       return token;
     }
-
-    // case CHAR_EXCLAIMATION:
-    //   Ln = lineNo;
-    //   Col = colNo;
-
-    //   readChar();
-    //   if (currentChar != EOF && charCodes[currentChar] == CHAR_EQ)
-    //   {
-    //     token = makeToken(SB_NEQ, Ln, Col);
-    //     readChar();
-    //   }
-    //   else
-    //   {
-    //     token = makeToken(TK_NONE, Ln, Col);
-    //     error(ERR_INVALIDSYMBOL, Ln, Col);
-    //   }
-    //   return token;
 
   case CHAR_RPAR:
     token = makeToken(SB_RPAR, lineNo, colNo);

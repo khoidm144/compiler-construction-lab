@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include "error.h"
 
-
 void error(ErrorCode err, int lineNo, int colNo)
 {
   switch (err)
@@ -28,8 +27,11 @@ void error(ErrorCode err, int lineNo, int colNo)
   case ERR_NUMBERTOOLARGE:
     printf("%d-%d:%s\n", lineNo, colNo, ERM_NUMBERTOOLARGE);
     break;
-    case ERR_INVALIDINDENT:
+  case ERR_INVALIDINDENT:
     printf("%d-%d:%s\n", lineNo, colNo, ERM_INVALIDINDENT);
+    break;
+  case ERR_STRINGCONSTANTTOOLONG:
+    printf("%d-%d:%s\n", lineNo, colNo, ERM_STRINGCONSTANTTOOLONG);
     break;
   }
   exit(-1);

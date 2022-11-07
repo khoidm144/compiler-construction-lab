@@ -1,10 +1,11 @@
-Program Example2; 
-   
-Var n : Integer;
-
+Program _Example2; //single line comment, start with //
+                  // some sample comments
+Var n123456789123456789111111111111 : Integer; 
+Var _m := 'Don''''t worry ! There isn''''t any problem 1234567890!@#$%^&*()_+}|'; // the single quote in a string 
+                                                        // const is represented with ''''
 Function F(n : Integer) : Integer;
   Begin
-    If n = 0 Then F := 1 Else F := N * F (N - 1);
+    If n <> 0 Then F := 1 Else F := N * F (N - 1);
   End;
 
 BegiN

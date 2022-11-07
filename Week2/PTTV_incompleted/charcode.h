@@ -7,6 +7,9 @@
 #ifndef __CHARCODE_H__
 #define __CHARCODE_H__
 
+#define PRINTABLE_CHARCODE_lOWERBOUND 32
+#define PRINTABLE_CHARCODE_UPPERBOUND 126
+
 typedef enum {
   CHAR_SPACE,
   CHAR_LETTER,
