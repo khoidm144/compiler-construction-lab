@@ -1,0 +1,23 @@
+program Exercise5;
+
+var n : integer;
+var flag : integer;
+var myArray : array (.10.) of array (.10.) of integer;
+
+BEGIN
+    n := readI;
+    flag := 1;
+    if n > 10 then writeC('E')
+    else
+        begin
+            for i := 0 to n - 1 do
+                for j := 0 to n - 1 do
+                    myArray(.i.)(.j.) := readI;
+            
+            for i := 0 to n - 1 do
+                for j := i + 1 to n - 1 do
+                    if myArray(.i.)(.j.) != 0 then flag = 1;
+
+            call writeI(flag);   
+        end;
+END. 

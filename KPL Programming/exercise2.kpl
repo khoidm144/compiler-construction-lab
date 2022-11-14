@@ -1,0 +1,22 @@
+program exercise2;
+var a : integer;
+var b : integer;
+var c : integer;
+var count : integer;
+BEGIN
+  count := 0;
+  a := readI;
+  b := readI;
+  c := readI;
+  if (a > 20)
+   then if(a < 100)
+    then count := count +1;
+  if (b > 20)
+   then if(b < 100)
+    then  count := count +1;
+  if (c > 20)
+   then if(c < 100)
+    then count := count +1;
+  call writeI (count);
+END.
+

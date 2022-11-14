@@ -1,0 +1,9 @@
+program exercise1;
+var a : integer;
+var b : integer;
+BEGIN
+  a := readI;
+  b := readI;
+  call WriteI (b-a-1);
+END.
+
