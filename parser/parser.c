@@ -653,7 +653,7 @@ void compileExpression3(void)
     compileTerm();
     compileExpression3();
     break;
-  // Follow (statement)
+  // // Follow (statement)
   case SB_SEMICOLON:
   case KW_END:
   case KW_ELSE:
@@ -676,7 +676,7 @@ void compileExpression3(void)
   // Follow (if statement)
   case KW_THEN:
     break;
-  // Error
+  // // Error
   default:
     error(ERR_INVALIDEXPRESSION, lookAhead->lineNo, lookAhead->colNo);
     break;
