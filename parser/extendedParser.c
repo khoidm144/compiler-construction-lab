@@ -55,59 +55,6 @@ void compileProgram(void)
     assert("Program parsed!");
 }
 
-void compileBlock(void)
-{
-    assert("Parsing a Block ....");
-    if (lookAhead->tokenType == KW_CONST)
-    {
-        eat(KW_CONST);
-        compileConstDecl();
-        compileConstDecls();
-        compileBlock2();
-    }
-    else
-        compileBlock2();
-    assert("Block parsed!");
-}
-
-void compileBlock2(void)
-{
-    if (lookAhead->tokenType == KW_TYPE)
-    {
-        eat(KW_TYPE);
-        compileTypeDecl();
-        compileTypeDecls();
-        compileBlock3();
-    }
-    else
-        compileBlock3();
-}
-
-void compileBlock3(void)
-{
-    if (lookAhead->tokenType == KW_VAR)
-    {
-        eat(KW_VAR);
-        compileVarDecl();
-        compileVarDecls();
-        compileBlock4();
-    }
-    else
-        compileBlock4();
-}
-
-void compileBlock4(void)
-{
-    compileSubDecls();
-    compileBlock5();
-}
-
-void compileBlock5(void)
-{
-    eat(KW_BEGIN);
-    compileStatements();
-    eat(KW_END);
-}
 void compileConstDecls(void)
 {
     assert("Parsing subconstants...");
@@ -181,8 +128,8 @@ void compileSubDecls(void)
 void compileFuncDecls(void)
 {
     assert("Parsing subfuncts ....");
-    compileFuncDecl();
-    compileFuncDecls();
+    while (lookAhead->tokenType == KW_FUNCTION)
+        compileFuncDecl();
     assert("Subfuncts parsed ....");
 }
 
@@ -203,8 +150,8 @@ void compileFuncDecl(void)
 void compileProcDecls(void)
 {
     assert("Parsing subprocs ....");
-    compileProcDecl();
-    compileProcDecls();
+    while (lookAhead->tokenType == KW_PROCEDURE)
+        compileProcDecl();
     assert("Subprocs parsed ....");
 }
 
@@ -218,6 +165,72 @@ void compileProcDecl(void)
     compileBlock();
     eat(SB_SEMICOLON);
     assert("Procedure parsed ....");
+}
+
+void compileBlock(void)
+{
+    assert("Parsing a Block ....");
+    if (lookAhead->tokenType == KW_CONST)
+    {
+        eat(KW_CONST);
+        compileConstDecl();
+        compileConstDecls();
+        compileBlock2();
+    }
+    else
+        compileBlock2();
+    assert("Block parsed!");
+}
+
+void compileBlock2(void)
+{
+    if (lookAhead->tokenType == KW_TYPE)
+    {
+        eat(KW_TYPE);
+        compileTypeDecl();
+        compileTypeDecls();
+        compileBlock3();
+    }
+    else
+        compileBlock3();
+}
+
+void compileBlock3(void)
+{
+    if (lookAhead->tokenType == KW_VAR)
+    {
+        eat(KW_VAR);
+        compileVarDecl();
+        compileVarDecls();
+        compileBlock4();
+    }
+    else
+        compileBlock4();
+}
+
+void compileBlock4(void)
+{
+    if (lookAhead->tokenType == KW_FUNCTION)
+    {
+        compileFuncDecls();
+    }
+    compileBlock5();
+}
+
+void compileBlock6(void)
+{
+    eat(KW_BEGIN);
+    compileStatements();
+    eat(KW_END);
+}
+
+void compileBlock5(void)
+{
+    if (lookAhead->tokenType == KW_PROCEDURE)
+    {
+        compileProcDecls();
+    }
+    compileBlock6();
 }
 
 void compileUnsignedConstant(void)
