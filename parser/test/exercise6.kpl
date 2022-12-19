@@ -1,0 +1,24 @@
+program Exercise6;
+
+var n:INTEGER;
+    i:INTEGER;
+
+FUNCTION Divisible (m: INTEGER; n: INTEGER): INTEGER;
+VAR TEMP: INTEGER;
+BEGIN
+    TEMP := m / n;
+    IF (temp * n) = m THEN
+     Divisible  := 1
+    ELSE 
+     Divisible := 0;
+END;
+
+BEGIN
+    n := readI;
+    FOR i := 1 TO n DO
+      BEGIN
+       IF Divisible(n,i)=1
+       THEN Call WRITEI(i);
+       L := L+1;
+      END
+END.
