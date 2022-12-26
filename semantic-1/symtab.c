@@ -9,31 +9,34 @@
 #include <string.h>
 #include "symtab.h"
 
-void freeObject(Object* obj);
-void freeScope(Scope* scope);
+void freeObject(Object *obj);
+void freeScope(Scope *scope);
 void freeObjectList(ObjectNode *objList);
 void freeReferenceList(ObjectNode *objList);
 
-SymTab* symtab;
-Type* intType;
-Type* charType;
+SymTab *symtab;
+Type *intType;
+Type *charType;
 
 /******************* Type utilities ******************************/
 
-Type* makeIntType(void) {
-  Type* type = (Type*) malloc(sizeof(Type));
+Type *makeIntType(void)
+{
+  Type *type = (Type *)malloc(sizeof(Type));
   type->typeClass = TP_INT;
   return type;
 }
 
-Type* makeCharType(void) {
-  Type* type = (Type*) malloc(sizeof(Type));
+Type *makeCharType(void)
+{
+  Type *type = (Type *)malloc(sizeof(Type));
   type->typeClass = TP_CHAR;
   return type;
 }
 
-Type* makeArrayType(int arraySize, Type* elementType) {
-  Type* type = (Type*) malloc(sizeof(Type));
+Type *makeArrayType(int arraySize, Type *elementType)
+{
+  Type *type = (Type *)malloc(sizeof(Type));
   type->typeClass = TP_ARRAY;
   type->arraySize = arraySize;
   type->elementType = elementType;
@@ -52,10 +55,13 @@ Type *duplicateType(Type *type)
   return resultType;
 }
 
-int compareType(Type* type1, Type* type2) {
-  if(type1->typeClass == type2->typeClass){
-    if(type1->typeClass == TP_ARRAY){
-      if(type1->arraySize == type2->arraySize)
+int compareType(Type *type1, Type *type2)
+{
+  if (type1->typeClass == type2->typeClass)
+  {
+    if (type1->typeClass == TP_ARRAY)
+    {
+      if (type1->arraySize == type2->arraySize)
         return compareType(type1->elementType, type2->elementType);
       else
         return 0;
@@ -66,8 +72,10 @@ int compareType(Type* type1, Type* type2) {
   return 0;
 }
 
-void freeType(Type* type) {
-  switch (type->typeClass) {
+void freeType(Type *type)
+{
+  switch (type->typeClass)
+  {
   case TP_INT:
   case TP_CHAR:
     free(type);
@@ -81,24 +89,27 @@ void freeType(Type* type) {
 
 /******************* Constant utility ******************************/
 
-ConstantValue* makeIntConstant(int i) {
+ConstantValue *makeIntConstant(int i)
+{
   ConstantValue *value = (ConstantValue *)malloc(sizeof(ConstantValue));
   value->type = TP_INT;
   value->intValue = i;
   return value;
 }
 
-ConstantValue* makeCharConstant(char ch) {
+ConstantValue *makeCharConstant(char ch)
+{
   ConstantValue *value = (ConstantValue *)malloc(sizeof(ConstantValue));
   value->type = TP_CHAR;
   value->charValue = ch;
   return value;
 }
 
-ConstantValue* duplicateConstantValue(ConstantValue* v) {
+ConstantValue *duplicateConstantValue(ConstantValue *v)
+{
   ConstantValue *value = (ConstantValue *)malloc(sizeof(ConstantValue));
   value->type = v->type;
-  if(v->type == TP_INT)
+  if (v->type == TP_INT)
     value->intValue = v->intValue;
   else
     value->charValue = v->charValue;
@@ -108,26 +119,29 @@ ConstantValue* duplicateConstantValue(ConstantValue* v) {
 
 /******************* Object utilities ******************************/
 
-Scope* createScope(Object* owner, Scope* outer) {
-  Scope* scope = (Scope*) malloc(sizeof(Scope));
+Scope *createScope(Object *owner, Scope *outer)
+{
+  Scope *scope = (Scope *)malloc(sizeof(Scope));
   scope->objList = NULL;
   scope->owner = owner;
   scope->outer = outer;
   return scope;
 }
 
-Object* createProgramObject(char *programName) {
-  Object* program = (Object*) malloc(sizeof(Object));
+Object *createProgramObject(char *programName)
+{
+  Object *program = (Object *)malloc(sizeof(Object));
   strcpy(program->name, programName);
   program->kind = OBJ_PROGRAM;
-  program->progAttrs = (ProgramAttributes*) malloc(sizeof(ProgramAttributes));
-  program->progAttrs->scope = createScope(program,NULL);
+  program->progAttrs = (ProgramAttributes *)malloc(sizeof(ProgramAttributes));
+  program->progAttrs->scope = createScope(program, NULL);
   symtab->program = program;
 
   return program;
 }
 
-Object* createConstantObject(char *name) {
+Object *createConstantObject(char *name)
+{
   Object *obj = (Object *)malloc(sizeof(Object));
   strcpy(obj->name, name);
   obj->kind = OBJ_CONSTANT;
@@ -136,7 +150,8 @@ Object* createConstantObject(char *name) {
   return obj;
 }
 
-Object* createTypeObject(char *name) {
+Object *createTypeObject(char *name)
+{
   // TODO
   Object *obj = (Object *)malloc(sizeof(Object));
   strcpy(obj->name, name);
@@ -146,7 +161,8 @@ Object* createTypeObject(char *name) {
   return obj;
 }
 
-Object* createVariableObject(char *name) {
+Object *createVariableObject(char *name)
+{
   // TODO
   Object *obj = (Object *)malloc(sizeof(Object));
   strcpy(obj->name, name);
@@ -157,7 +173,8 @@ Object* createVariableObject(char *name) {
   return obj;
 }
 
-Object* createFunctionObject(char *name) {
+Object *createFunctionObject(char *name)
+{
   // TODO
   Object *obj = (Object *)malloc(sizeof(Object));
   strcpy(obj->name, name);
@@ -169,7 +186,8 @@ Object* createFunctionObject(char *name) {
   return obj;
 }
 
-Object* createProcedureObject(char *name) {
+Object *createProcedureObject(char *name)
+{
   // TODO
   Object *obj = (Object *)malloc(sizeof(Object));
   strcpy(obj->name, name);
@@ -181,7 +199,8 @@ Object* createProcedureObject(char *name) {
   return obj;
 }
 
-Object* createParameterObject(char *name, enum ParamKind kind, Object* owner) {
+Object *createParameterObject(char *name, enum ParamKind kind, Object *owner)
+{
   // TODO
   Object *obj = (Object *)malloc(sizeof(Object));
   strcpy(obj->name, name);
@@ -193,7 +212,8 @@ Object* createParameterObject(char *name, enum ParamKind kind, Object* owner) {
   return obj;
 }
 
-void freeObject(Object* obj) {
+void freeObject(Object *obj)
+{
   // TODO
   switch (obj->kind)
   {
@@ -232,13 +252,15 @@ void freeObject(Object* obj) {
   free(obj);
 }
 
-void freeScope(Scope* scope) {
+void freeScope(Scope *scope)
+{
   // TODO
   freeObjectList(scope->objList);
   free(scope);
 }
 
-void freeObjectList(ObjectNode *objList) {
+void freeObjectList(ObjectNode *objList)
+{
   // TODO
   ObjectNode *list = objList;
 
@@ -251,7 +273,8 @@ void freeObjectList(ObjectNode *objList) {
   }
 }
 
-void freeReferenceList(ObjectNode *objList) {
+void freeReferenceList(ObjectNode *objList)
+{
   // TODO
   ObjectNode *list = objList;
 
@@ -263,13 +286,15 @@ void freeReferenceList(ObjectNode *objList) {
   }
 }
 
-void addObject(ObjectNode **objList, Object* obj) {
-  ObjectNode* node = (ObjectNode*) malloc(sizeof(ObjectNode));
+void addObject(ObjectNode **objList, Object *obj)
+{
+  ObjectNode *node = (ObjectNode *)malloc(sizeof(ObjectNode));
   node->object = obj;
   node->next = NULL;
   if ((*objList) == NULL)
     *objList = node;
-  else {
+  else
+  {
     ObjectNode *n = *objList;
     while (n->next != NULL)
       n = n->next;
@@ -277,7 +302,8 @@ void addObject(ObjectNode **objList, Object* obj) {
   }
 }
 
-Object* findObject(ObjectNode *objList, char *name) {
+Object *findObject(ObjectNode *objList, char *name)
+{
   // TODO
   while (objList != NULL)
   {
@@ -291,11 +317,12 @@ Object* findObject(ObjectNode *objList, char *name) {
 
 /******************* others ******************************/
 
-void initSymTab(void) {
-  Object* obj;
-  Object* param;
+void initSymTab(void)
+{
+  Object *obj;
+  Object *param;
 
-  symtab = (SymTab*) malloc(sizeof(SymTab));
+  symtab = (SymTab *)malloc(sizeof(SymTab));
   symtab->globalObjectList = NULL;
 
   obj = createFunctionObject("READC");
@@ -309,13 +336,13 @@ void initSymTab(void) {
   obj = createProcedureObject("WRITEI");
   param = createParameterObject("i", PARAM_VALUE, obj);
   param->paramAttrs->type = makeIntType();
-  addObject(&(obj->procAttrs->paramList),param);
+  addObject(&(obj->procAttrs->paramList), param);
   addObject(&(symtab->globalObjectList), obj);
 
   obj = createProcedureObject("WRITEC");
   param = createParameterObject("ch", PARAM_VALUE, obj);
   param->paramAttrs->type = makeCharType();
-  addObject(&(obj->procAttrs->paramList),param);
+  addObject(&(obj->procAttrs->paramList), param);
   addObject(&(symtab->globalObjectList), obj);
 
   obj = createProcedureObject("WRITELN");
@@ -325,7 +352,8 @@ void initSymTab(void) {
   charType = makeCharType();
 }
 
-void cleanSymTab(void) {
+void cleanSymTab(void)
+{
   freeObject(symtab->program);
   freeObjectList(symtab->globalObjectList);
   free(symtab);
@@ -333,18 +361,23 @@ void cleanSymTab(void) {
   freeType(charType);
 }
 
-void enterBlock(Scope* scope) {
+void enterBlock(Scope *scope)
+{
   symtab->currentScope = scope;
 }
 
-void exitBlock(void) {
+void exitBlock(void)
+{
   symtab->currentScope = symtab->currentScope->outer;
 }
 
-void declareObject(Object* obj) {
-  if (obj->kind == OBJ_PARAMETER) {
-    Object* owner = symtab->currentScope->owner;
-    switch (owner->kind) {
+void declareObject(Object *obj)
+{
+  if (obj->kind == OBJ_PARAMETER)
+  {
+    Object *owner = symtab->currentScope->owner;
+    switch (owner->kind)
+    {
     case OBJ_FUNCTION:
       addObject(&(owner->funcAttrs->paramList), obj);
       break;
