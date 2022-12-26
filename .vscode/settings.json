@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "charcode.h": "c"
+        "charcode.h": "c",
+        "error.h": "c",
+        "debug.h": "c"
     }
 }
