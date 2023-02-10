@@ -2,6 +2,7 @@
     "files.associations": {
         "charcode.h": "c",
         "error.h": "c",
-        "debug.h": "c"
+        "debug.h": "c",
+        "semantics.h": "c"
     }
 }
