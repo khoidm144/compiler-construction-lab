@@ -14,7 +14,7 @@ enum TypeClass {
   TP_CHAR,
   TP_ARRAY
 };
-
+// Kinds of object (a variable object, a constant object, etc)
 enum ObjectKind {
   OBJ_CONSTANT,
   OBJ_VARIABLE,
@@ -24,7 +24,7 @@ enum ObjectKind {
   OBJ_PARAMETER,
   OBJ_PROGRAM
 };
-
+// Kinds of parameter: value or reference type.
 enum ParamKind {
   PARAM_VALUE,
   PARAM_REFERENCE
@@ -87,7 +87,8 @@ struct ParameterAttributes_ {
   Type* type;
   struct Object_ *function;
 };
-
+//To store typical attributes of each type: e.g a constant type must have a constant value, a function type must have 
+//a parameter list, a return type, and own a scope.
 typedef struct ConstantAttributes_ ConstantAttributes;
 typedef struct TypeAttributes_ TypeAttributes;
 typedef struct VariableAttributes_ VariableAttributes;
@@ -95,7 +96,8 @@ typedef struct FunctionAttributes_ FunctionAttributes;
 typedef struct ProcedureAttributes_ ProcedureAttributes;
 typedef struct ProgramAttributes_ ProgramAttributes;
 typedef struct ParameterAttributes_ ParameterAttributes;
-
+//To store information about each object in program, such as main program itself, 
+// a procedure or function, a variable, a constant, etc.
 struct Object_ {
   char name[MAX_IDENT_LEN];
   enum ObjectKind kind;
@@ -111,7 +113,7 @@ struct Object_ {
 };
 
 typedef struct Object_ Object;
-
+// A linked list to represent list of objects
 struct ObjectNode_ {
   Object *object;
   struct ObjectNode_ *next;
@@ -128,9 +130,9 @@ struct Scope_ {
 typedef struct Scope_ Scope;
 
 struct SymTab_ {
-  Object* program;
-  Scope* currentScope;
-  ObjectNode *globalObjectList;
+  Object* program; // the program object
+  Scope* currentScope; // current scope of symbol table.
+  ObjectNode *globalObjectList; //store global objects : CALL, WRITEI, etc. 
 };
 
 typedef struct SymTab_ SymTab;
